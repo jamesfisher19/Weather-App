@@ -6,13 +6,13 @@ import './index.css';
 
 export default function App() {
   const WEATHER_API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
-
+  
   const [weatherData, setWeatherData] = useState({});
   const [city, setCity] = useState('');
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
 
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${WEATHER_API_KEY}`;
-
+  
   const handleLocationSearch = async (event) => {
     if (event.key === 'Enter') {
       try {
