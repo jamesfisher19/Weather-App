@@ -12,7 +12,7 @@ export default function App() {
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
 
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${WEATHER_API_KEY}`;
-  
+  console.log(process.env.REACT_APP_WEATHER_API_KEY)
   const handleLocationSearch = async (event) => {
     if (event.key === 'Enter') {
       try {
