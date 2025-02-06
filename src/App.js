@@ -1,66 +1,87 @@
-import './App.css';
 import React, { useState } from 'react';
 import axios from 'axios';
+import { getCityImage } from './unsplash';
+import defaultBackground from './assets/default.jpg';
+import './index.css';
 
-function App() {
-  const [data, setData] = useState({});
-  const [location, setLocation] = useState('');
+export default function App() {
+  const WEATHER_API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
-  const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=imperial&appid=d4542ccd29035894d479f2409a69e3f9`;
+  const [weatherData, setWeatherData] = useState({});
+  const [city, setCity] = useState('');
+  const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
 
-  const searchLocation = (event) => {
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${WEATHER_API_KEY}`;
+
+  const handleLocationSearch = async (event) => {
     if (event.key === 'Enter') {
-      axios
-        .get(url)
-        .then((response) => {
-          setData(response.data);
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-          alert('Location not found. Please enter a valid location.');
-        });
-      setLocation('');
+      try {
+        const response = await axios.get(url);
+        setWeatherData(response.data);
+
+        const fetchedImage = await getCityImage(city);
+        setBackgroundImageUrl(fetchedImage);
+      } catch (error) {
+        console.error(error);
+        alert('Location not found. Please enter a valid location.');
+      }
+      setCity('');
     }
   };
 
   return (
-    <div className="App">
+    <div
+      className="App"
+      style={{
+        backgroundImage: `url(${backgroundImageUrl || defaultBackground})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        height: '100vh',
+      }}
+    >
       <div className="search">
         <input
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-          onKeyPress={searchLocation}
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          onKeyPress={handleLocationSearch}
           placeholder="Enter Location"
           type="text"
         />
       </div>
+
       <div className="container">
         <div className="top">
           <div className="location">
-            <h1>{data.name}</h1>
+            <h1>{weatherData.name}</h1>
           </div>
           <div className="temp">
-            {data.main ? <h3>{data.main.temp.toFixed()}°F</h3> : null}
+            {weatherData.main && <h3>{weatherData.main.temp.toFixed()}°F</h3>}
           </div>
           <div className="description">
-            {data.weather ? <p>{data.weather[0].main}</p> : null}
+            {weatherData.weather && <p>{weatherData.weather[0].main}</p>}
           </div>
         </div>
 
-        {data.name !== undefined && (
+        {weatherData.name && (
           <div className="bottom">
             <div className="feels">
-              <h2 className="bold"> Feels Like</h2>
-              {data.main ? <p> {data.main.feels_like.toFixed()}°F</p> : null}
+              <h2 className="bold">Feels Like</h2>
+              {weatherData.main && (
+                <p>{weatherData.main.feels_like.toFixed()}°F</p>
+              )}
             </div>
             <div className="humidity">
               <p className="bold">Humidity</p>
-              {data.main ? <p>{data.main.humidity.toFixed()}%</p> : null}
+              {weatherData.main && (
+                <p>{weatherData.main.humidity.toFixed()}%</p>
+              )}
             </div>
             <div className="wind">
               <h2 className="bold">Wind</h2>
-              {data.wind ? <p>{data.wind.speed.toFixed()}mph</p> : null}
+              {weatherData.wind && (
+                <p>{weatherData.wind.speed.toFixed()}mph</p>
+              )}
             </div>
           </div>
         )}
@@ -68,5 +89,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
